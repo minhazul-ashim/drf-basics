@@ -35,3 +35,35 @@ class AccountSerializer(serializers.ModelSerializer) :
         useraccount = models.UserAccount(user=account, accType=accType, location=location, phone=phone);
         useraccount.save();
 
+
+class AccountUpdateSerializer(serializers.ModelSerializer) :
+    confirm_pass = serializers.CharField(required=True);
+    accType = serializers.CharField();
+    location = serializers.CharField();
+    phone = serializers.CharField();
+    resume = serializers.FileField(required=False);
+    class Meta :
+        model = models.UserAccount;
+        fields = ['username', 'first_name', 'last_name', 'email', 'accType', 'location', 'phone', 'resume'];
+
+    def save(self) :
+        username = self.validated_data['username'];
+        email = self.validated_data['email'];
+        first_name = self.validated_data['first_name'];
+        last_name = self.validated_data['last_name'];
+        accType = self.validated_data['accType'];
+        location = self.validated_data['location'];
+        phone = self.validated_data['phone'];
+
+        user = User.objects.filter(username=username);
+
+        user.update(username=username, first_name=first_name, last_name=last_name, email=email);
+
+        useraccount = models.UserAccount.objects.filter(user=user);
+
+        if self.validated_data['resume'] :
+            resume = self.validated_data['resume']
+            useraccount.update(resume=resume);
+
+        useraccount.update(accType=accType, location=location, phone=phone)
+
