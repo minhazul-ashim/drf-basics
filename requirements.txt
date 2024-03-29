@@ -1,0 +1,14 @@
+asgiref
+crispy-bootstrap5
+Django
+django-cors-headers
+django-crispy-forms
+django-environ
+django-filter
+djangorestframework
+Markdown
+pillow
+pip-chill
+psycopg2
+sqlparse
+tzdata
