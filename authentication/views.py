@@ -6,6 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate, login, logout;
 from rest_framework.authtoken.models import Token;
 from django.shortcuts import redirect;
+from accounts.models import UserAccount;
 
 class UserLoginView(APIView):
     permission_classes = [AllowAny]
@@ -16,11 +17,11 @@ class UserLoginView(APIView):
             password = serializer.validated_data['password'];
 
             user = authenticate(username=username, password=password);
-
+            account = UserAccount.objects.get(user=user);
             if user :
                 token, created = Token.objects.get_or_create(user=user);
                 login(request, user);
-                return Response({'token': token.key, 'userId': user.id });
+                return Response({'token': token.key, 'userId': account.id });
             else :
                 return Response({'error' : 'Invalid credentials'});
 
@@ -30,11 +31,11 @@ class UserLogoutView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        if request.user.is_authenticated:
-            try:
-                request.user.auth_token.delete()
-            except AttributeError:
-                pass
+        try:
+            request.user.auth_token.delete()
+            return Response({'message': 'User Logged out. Token deleted'})
+        except AttributeError:
+            pass
 
         logout(request)
-        return redirect('login')
+        return Response({'message': 'User Logged out. Token deleted'})

@@ -4,7 +4,7 @@ from . import views;
 
 router = DefaultRouter();
 
-router.register('job', views.JobViewset)
+router.register('jobs', views.JobViewset)
 
 urlpatterns = [
     path('', include(router.urls))

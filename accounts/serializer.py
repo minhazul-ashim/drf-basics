@@ -2,12 +2,24 @@ from rest_framework import serializers;
 from . import models;
 from django.contrib.auth.models import User;
 from rest_framework import serializers
+from application.serializer import AppplicationSerializer;
+from job.serializer import JobSerializer;
 from .models import UserAccount
 
 class UserSerializer(serializers.ModelSerializer):
+    user_posted_job = JobSerializer(many=True)
+    user_application = AppplicationSerializer(many=True) 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username', 'user_posted_job', 'user_application']
+        fields = ['id', 'first_name', 'last_name', 'email', 'username', 'user_posted_job', 'user_application']
+
+    def get_user_posted_job(self, obj):
+        posted_jobs = obj.user_posted_job.all()
+        return JobSerializer(posted_jobs, many=True).data
+
+    def get_user_application(self, obj):
+        applied_jobs = obj.user_application.all()
+        return JobSerializer(applied_jobs, many=True).data
 
 class UserAccountSerializer(serializers.ModelSerializer):
     user = UserSerializer()

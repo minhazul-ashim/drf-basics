@@ -7,4 +7,6 @@ urlpatterns = [
     path('update/', views.UserUpdateView.as_view(), name="accountUpdate"),
 
     path('get/', views.UserAccountView.as_view(), name="accountGet"),
+
+    path('<int:id>/', views.UserAccountView.as_view(), name="accountGet"),
 ]

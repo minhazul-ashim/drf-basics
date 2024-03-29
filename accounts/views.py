@@ -18,20 +18,21 @@ class AccountCreationView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserUpdateView(APIView):
-    serializer_class = AccountUpdateSerializer
-    permission_classes = [IsAuthenticated]
+    queryset = UserAccount.objects.all()
+    serializer_class = UserAccountSerializer
+    permission_classes = [AllowAny]
 
     def put(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save(request)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserAccountView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
-    def get(self, request):
-        user_account = UserAccount.objects.get(user=request.user)
+    def get(self, request, id):
+        user_account = UserAccount.objects.get(id=id)
         serializer = UserAccountSerializer(user_account)
         return Response(serializer.data)
