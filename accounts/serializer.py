@@ -1,6 +1,20 @@
 from rest_framework import serializers;
 from . import models;
 from django.contrib.auth.models import User;
+from rest_framework import serializers
+from .models import UserAccount
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'user_posted_job', 'user_application']
+
+class UserAccountSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = UserAccount
+        fields = ['user', 'accType', 'location', 'phone', 'resume']
 
 class AccountSerializer(serializers.ModelSerializer) :
     confirm_pass = serializers.CharField(required=True);
@@ -36,34 +50,46 @@ class AccountSerializer(serializers.ModelSerializer) :
         useraccount.save();
 
 
-class AccountUpdateSerializer(serializers.ModelSerializer) :
-    confirm_pass = serializers.CharField(required=True);
-    accType = serializers.CharField();
-    location = serializers.CharField();
-    phone = serializers.CharField();
-    resume = serializers.FileField(required=False);
-    class Meta :
-        model = models.UserAccount;
-        fields = ['username', 'first_name', 'last_name', 'email', 'accType', 'location', 'phone', 'resume'];
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import UserAccount
 
-    def save(self) :
-        username = self.validated_data['username'];
-        email = self.validated_data['email'];
-        first_name = self.validated_data['first_name'];
-        last_name = self.validated_data['last_name'];
-        accType = self.validated_data['accType'];
-        location = self.validated_data['location'];
-        phone = self.validated_data['phone'];
+class AccountUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+    accType = serializers.CharField()
+    location = serializers.CharField()
+    phone = serializers.CharField()
+    resume = serializers.FileField(required=False)
 
-        user = User.objects.filter(username=username);
+    def save(self, request):
+        username = self.validated_data['username']
+        email = self.validated_data['email']
+        first_name = self.validated_data['first_name']
+        last_name = self.validated_data['last_name']
+        accType = self.validated_data['accType']
+        location = self.validated_data['location']
+        phone = self.validated_data['phone']
+        
+        user = request.user
 
-        user.update(username=username, first_name=first_name, last_name=last_name, email=email);
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save()
 
-        useraccount = models.UserAccount.objects.filter(user=user);
+        user_account = UserAccount.objects.get(user=user)
 
-        if self.validated_data['resume'] :
+        user_account.accType = accType
+        user_account.location = location
+        user_account.phone = phone
+
+        if 'resume' in self.validated_data:
             resume = self.validated_data['resume']
-            useraccount.update(resume=resume);
+            user_account.resume = resume
 
-        useraccount.update(accType=accType, location=location, phone=phone)
+        user_account.save()
 
