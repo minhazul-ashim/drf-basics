@@ -11,7 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserAccountSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-
     class Meta:
         model = UserAccount
         fields = ['user', 'accType', 'location', 'phone', 'resume']
