@@ -58,7 +58,9 @@ CORS_ALLOW_HEADERS = [
     'content-type',
 ]
 
+ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = ["https://drf-basics.onrender.com"]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
